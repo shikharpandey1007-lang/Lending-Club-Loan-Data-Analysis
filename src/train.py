@@ -36,7 +36,9 @@ def load_dataset(path: str) -> pd.DataFrame:
     df = pd.read_csv(path)
     if TARGET not in df.columns:
         raise ValueError(f"Dataset must contain target column {TARGET!r}.")
-    df = df.drop_duplicates().copy()
+    # Keep every source row: without a unique loan ID, identical rows may still be distinct records.
+    # Duplicate counts are reported separately by the EDA step for review.
+    df = df.copy()
     df = df.dropna(subset=[TARGET])
     df[TARGET] = pd.to_numeric(df[TARGET], errors="raise").astype(int)
     if not set(df[TARGET].unique()).issubset({0, 1}):
@@ -207,6 +209,21 @@ def main():
     (output_dir / "training_history.json").write_text(json.dumps(history_data, indent=2), encoding="utf-8")
     (output_dir / "test_metrics.json").write_text(json.dumps(results, indent=2), encoding="utf-8")
     save_curves(y_test, test_prob, output_dir)
+
+    # Training diagnostics help identify under/over-fitting.
+    fig, axes = plt.subplots(1, 2, figsize=(11, 4))
+    axes[0].plot(history.history["loss"], label="train")
+    axes[0].plot(history.history["val_loss"], label="validation")
+    axes[0].set(title="Training loss", xlabel="Epoch", ylabel="Binary cross-entropy")
+    axes[0].legend()
+    if "pr_auc" in history.history:
+        axes[1].plot(history.history["pr_auc"], label="train PR-AUC")
+        axes[1].plot(history.history["val_pr_auc"], label="validation PR-AUC")
+    axes[1].set(title="Precision-recall AUC", xlabel="Epoch", ylabel="PR-AUC")
+    axes[1].legend()
+    fig.tight_layout()
+    fig.savefig(output_dir / "training_curves.png", dpi=160)
+    plt.close(fig)
 
     comparison = pd.DataFrame([{k: v for k, v in row.items() if k not in {"confusion_matrix", "classification_report"}} for row in results])
     comparison.to_csv(output_dir / "model_comparison.csv", index=False)
