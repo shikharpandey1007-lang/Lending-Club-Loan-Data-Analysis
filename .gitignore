@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.venv/
+venv/
+.env
+
+# Generated outputs and trained artifacts
+artifacts/
+reports/figures/
+reports/metrics/
+*.keras
+*.joblib
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/
