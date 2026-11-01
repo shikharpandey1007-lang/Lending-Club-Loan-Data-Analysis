@@ -17,7 +17,7 @@ The source CSV is `Data/loan_data.csv`. The problem statement and feature descri
 
 ## Project workflow
 
-1. **Data validation:** inspect shape, data types, missing values, duplicate rows and target distribution.
+1. **Data validation:** inspect shape, data types, missing values, duplicate rows and target distribution. Exact duplicate rows are reported but not automatically removed because the source has no unique loan identifier to prove they are duplicate records.
 2. **EDA:** inspect target balance, loan-purpose default rates, selected numeric distributions and numeric correlations.
 3. **Preprocessing:** stratified train/validation/test split; median imputation and scaling for numeric features; most-frequent imputation and one-hot encoding for categorical features. All preprocessing is fitted on training data only.
 4. **Class imbalance:** use class weights during model fitting rather than judging success by accuracy.
@@ -75,7 +75,7 @@ Optional training controls:
 python -m src.train --epochs 60 --batch-size 128
 ```
 
-The run saves the Keras model, preprocessing pipeline, baseline models, test metrics, model comparison CSV, training history and ROC/precision-recall plots in `artifacts/`.
+The run saves the Keras model, preprocessing pipeline, baseline models, test metrics, model comparison CSV, training history and ROC/precision-recall/training-curve plots in `artifacts/`.
 
 **3. Open notebooks**
 
